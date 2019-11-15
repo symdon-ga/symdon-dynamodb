@@ -1,2 +1,12 @@
 #+TITLE: symdon-dynamodb
 
+#+BEGIN_SRC
+docker-compose up
+#+END_SRC
+
+|-----------------------+-----------------------------|
+| Description           | URL                         |
+|-----------------------+-----------------------------|
+| DynamoDB local Web UI | http://127.0.0.1:8000/shell |
+| dynamodb-admin        | http://127.0.0.1:8001/      |
+|-----------------------+-----------------------------|
