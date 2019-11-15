@@ -1,4 +1,6 @@
 #+TITLE: symdon-dynamodb project
+#+STARTUP: indent hidestars inlineimages
+#+TODO: TODO(t) | DONE(d!) DOC SPEC
 
 * Goal
     
@@ -6,5 +8,129 @@
 
 * TODO Motivationを記述する
 
+* DOC PynamoDBを使う
+
+** 各種操作
+
+必要ななモジュールのimportをしておく。
+
+#+BEGIN_SRC 
+import os
+from pynamodb.models import Model
+from pynamodb.attributes import UnicodeAttribute
+#+END_SRC
+
+*** データモデルの定義
+
+#+BEGIN_SRC python
+class UserModel(Model):
+    class Meta:
+        table_name = "user"
+        region = os.environ.get("SYMDON_DYNAMODB_PYNAMODB_REGION")
+        host = os.environ.get("SYMDON_DYNAMODB_PYNAMODB_ENDPOINT_URL")
+
+    email = UnicodeAttribute(null=True)
+    first_name = UnicodeAttribute(range_key=True)
+    last_name = UnicodeAttribute(hash_key=True)
+#+END_SRC
+
+*** テーブル作成
+
+#+BEGIN_SRC python
+if not UserModel.exists():
+    UserModel.create_table(read_capacity_units=1, write_capacity_units=1, wait=True)
+    print("Created")
+#+END_SRC
+
+*** アイテム作成
+
+#+BEGIN_SRC 
+user = UserModel("Oka", "Haruna")
+user.email = "oka@example.com"
+user.save()
+#+END_SRC
+
+*** アイテム取得
+
+#+BEGIN_SRC python
+UserModel.get("Oka")
+#+END_SRC
+
+*** クエリ
+
+#+BEGIN_SRC python
+for user in UserModel.query("Oka", UserModel.first_name.startswith("H")):
+    print(user.first_name)
+#+END_SRC
+
+*** エラーハンドリング
+
+#+BEGIN_EXAMPLE
+try:
+    user = UserModel.get("Oka", "Haruna")
+    logging.info(user)
+except UserModel.DoesNotExist:
+    logging.error("User does not exist.")
+#+END_EXAMPLE
+
+*** 条件付き書き込み
+
+#+BEGIN_SRC python
+from pynamodb.exceptions import PutError
+
+new_user = UserModel(first_name='Kadono',
+                    last_name='Takuzo',
+                    email='k_tanaka@example.com')
+try:
+    new_user.save(UserModel.last_name.does_not_exist())
+except PutError as e:
+    logging.error('Unable to add new user.')
+#+END_SRC
+
+*** アイテム更新
+
+#+BEGIN_SRC python
+user = UserModel.get("Oka", "Haruna")
+user.update(actions=[
+    UserModel.blood_type.set('AB')
+])
+#+END_SRC
+
+*** アイテムの削除
+
+#+BEGIN_SRC python
+user.delete()
+#+END_SRC
+
+*** GSI
+
+#+BEGIN_SRC python
+from pynamodb.models import Model
+from pynamodb.indexes import GlobalSecondaryIndex, AllProjection
+from pynamodb.attributes import NumberAttribute, UnicodeAttribute
+ 
+class ViewIndex(GlobalSecondaryIndex):
+    class Meta:
+        read_capacity_units = 2
+        write_capacity_units = 1
+        projection = AllProjection()
+    view = NumberAttribute(default=0, hash_key=True)
+ 
+class UserModel(Model):
+    class Meta:
+        table_name = "Devio-user"
+        region = 'ap-northeast-1'
+    email = UnicodeAttribute(null=True)
+    first_name = UnicodeAttribute(range_key=True)
+    last_name = UnicodeAttribute(hash_key=True)
+    view = NumberAttribute(default=0)
+    view_index = ViewIndex()
+#+END_SRC
+
+   
+** 参考
+   
+- https://pynamodb.readthedocs.io/en/latest/tutorial.html#getting-started
+- https://dev.classmethod.jp/server-side/python/try-pynamodb/
 
 
