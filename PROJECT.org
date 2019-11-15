@@ -1,0 +1,10 @@
+#+TITLE: symdon-dynamodb project
+
+* Goal
+    
+- [ ] dynamodb-localではないlocalで動作するDynamoDB互換のサーバーを実装する
+
+* TODO Motivationを記述する
+
+
+
