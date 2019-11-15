@@ -3,7 +3,7 @@
 #+TODO: TODO(t) | DONE(d!) DOC SPEC
 
 * Goal
-    
+
 - [ ] dynamodb-localではないlocalで動作するDynamoDB互換のサーバーを実装する
 
 * TODO Motivationを記述する
@@ -14,7 +14,7 @@
 
 必要ななモジュールのimportをしておく。
 
-#+BEGIN_SRC 
+#+BEGIN_SRC
 import os
 from pynamodb.models import Model
 from pynamodb.attributes import UnicodeAttribute
@@ -44,7 +44,7 @@ if not UserModel.exists():
 
 *** アイテム作成
 
-#+BEGIN_SRC 
+#+BEGIN_SRC
 user = UserModel("Oka", "Haruna")
 user.email = "oka@example.com"
 user.save()
@@ -108,14 +108,14 @@ user.delete()
 from pynamodb.models import Model
 from pynamodb.indexes import GlobalSecondaryIndex, AllProjection
 from pynamodb.attributes import NumberAttribute, UnicodeAttribute
- 
+
 class ViewIndex(GlobalSecondaryIndex):
     class Meta:
         read_capacity_units = 2
         write_capacity_units = 1
         projection = AllProjection()
     view = NumberAttribute(default=0, hash_key=True)
- 
+
 class UserModel(Model):
     class Meta:
         table_name = "Devio-user"
@@ -127,10 +127,8 @@ class UserModel(Model):
     view_index = ViewIndex()
 #+END_SRC
 
-   
+
 ** 参考
-   
+
 - https://pynamodb.readthedocs.io/en/latest/tutorial.html#getting-started
 - https://dev.classmethod.jp/server-side/python/try-pynamodb/
-
-
