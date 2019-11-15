@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  dynamodb:
+    image: amazon/dynamodb-local:1.11.477
+    ports:
+      - "8000:8000"
+
+  dynamodb_admin:
+    image: aaronshaf/dynamodb-admin:dependabot_npm_and_yarn_js-yaml-3.13.1
+    depends_on:
+      - dynamodb
+    ports:
+      - "8001:8001"
+    environment:
+      - "DYNAMO_ENDPOINT=http://dynamodb:8000"
+      - "AWS_REGION=ap-northeast-1"
+      - "AWS_ACCESS_KEY_ID=no"
+      - "AWS_SECRET_ACCESS_KEY=no"
